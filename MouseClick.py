@@ -1,4 +1,5 @@
 from pynput import mouse
+import time
 
 
 class MouseClick():
@@ -14,18 +15,24 @@ class MouseClick():
         if pressed:
             self.pressed.update({'button' : button.name})
         if not pressed:
-            self.pressed.update({'button' : None})
+            self.pressed.update({'button': None})
 
     def on_scroll(self, x, y, dx, dy):
         self.pressed.update({'dy' : dy})
 
     def start_listen(self):
-        with mouse.Listener(
+        listener = mouse.Listener(
                 on_move = self.on_move,
                 on_click = self.on_click,
-                on_scroll = self.on_scroll) as listener:
-            listener.join()
+                on_scroll = self.on_scroll)
+        listener.start()
+        try:
+            listener.wait()
+        finally:
+            listener.stop()
+            return self.pressed
 
 
 m = MouseClick()
-m.start_listen()
+for i in range(10000000000000):
+    print(m.start_listen())
