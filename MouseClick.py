@@ -4,30 +4,24 @@ from pynput import mouse
 class MouseClick():
 
     def __init__(self):
-        self.pressed = []
-        self.released = []
+        self.pressed = {'button' : None, 'x' : None, 'y' : None, 'dy' : None}
 
     def on_move(self, x, y):
-        print('Pointer moved to {0}'.format(
-            (x, y)))
+        self.pressed.update({'x' : x, 'y' : y})
+        print(self.pressed)
 
     def on_click(self, x, y, button, pressed):
         # try:
         if pressed:
-            self.pressed.append(button.name)
-        else:
-            self.released.append(button.name)
-        #print(button.name, '{0} at {1}'.format(
-        #    'Pressed' if pressed else 'Released',
-        #    (x, y)))
+            self.pressed.update({'button' : button.name})
+            print(self.pressed)
         if not pressed:
-            # Stop listener
-            return False
+            self.pressed.update({'button' : None})
+            print(self.pressed)
 
     def on_scroll(self, x, y, dx, dy):
-        print('Scrolled {0} at {1}'.format(
-            'down' if dy < 0 else 'up',
-            (x, y)))
+        self.pressed.update({'dy' : dy})
+        print(self.pressed)
 
     def start_listen(self):
         with mouse.Listener(
