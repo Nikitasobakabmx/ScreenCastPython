@@ -31,39 +31,28 @@ class KeyboardClick():
 
 class ScreenCatcher:
     def __init__(self):
-        self.img = []
-        self.img.append(pyautogui.screenshot())
+        self.img = pyautogui.screenshot()
     def shot(self):
-        a = 0
-        while a != 50:
-            tmpImg = pyautogui.screenshot()
-            self.img.append(tmpImg)
-            print("Shot")
-            a +=1
+        img = pyautogui.screenshot()
+        return img
 class VideoWriter:
     
     def __init__(self, output = "video.avi", format = "mp4v"):
+
         self.SC = ScreenCatcher()
         self.start(output, format)
 
-        self.catcherTread = threading.Thread(target=self.SC.shot())
-        self.VWriterTread = threading.Thread(target=self.write())
-
-        self.catcherTread.start()
-        self.VWriterTread.start()
-        self.catcherTread.join()
-        self.VWriterTread.join()
+        self.SC.shot()
+        self.write()
 
     def write(self):
-        a = 0
-        while a < 50:
-            for img in self.SC.img:
-                img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        try:
+            while True:
+                img = cv2.cvtColor(np.array(self.SC.shot()), cv2.COLOR_RGB2BGR)
                 self.out.write(img)
-                self.SC.img = self.SC.img[1:]
-                print("write")
-            
-            a += 1
+        except KeyboardInterrupt:
+            self.save()
+
     def save(self):
         self.flag = False
         self.out.release()
