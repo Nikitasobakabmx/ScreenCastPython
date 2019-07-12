@@ -1,2 +1,7 @@
+# files
 *.avi
+*.png
+# folders
+.vscode/
+__pycache__/
 
