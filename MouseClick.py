@@ -3,7 +3,7 @@ from queue import Queue
 from copy import deepcopy
 from time import time, sleep
 
-class MouseRedirector:
+class Redirector:
     def __init__(self, on_click, on_scroll, on_move):
         self.queue = Queue()
         self.should_work = True
@@ -59,7 +59,7 @@ def on_release(key):
     #print('{0} released'.format(
     #    key))
 
-mrd = MouseRedirector(on_click=on_click, on_move=on_move, on_scroll=on_scroll)
+mrd = Redirector(on_click=on_click, on_move=on_move, on_scroll=on_scroll)
 
 for _ in range(100):
     sleep(0.1)
