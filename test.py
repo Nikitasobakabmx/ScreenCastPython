@@ -9,6 +9,7 @@ import time
 
 class ScreenCatcher:
     def __init__(self):
+        print("__init__ SC start")
         self.processes = []
         self.q = Queue()
         for _ in range(4):
@@ -17,32 +18,39 @@ class ScreenCatcher:
             process.start()
         time.sleep(1)
         self.bitrate = int(self.q.qsize() - self.q.qsize()/15) #magic 
+        print("__init__ SC complete")
     def shot(self):
         while True: #(time.time()*100 - startTime) < 95:
-            a = pyautogui.screenshot()
-            self.q.put({"pic" : a, "time" : time.time()*100})
+            self.q.put({"pic" : pyautogui.screenshot(), "time" : time.time()*100})
     def terminate(self):
         for process in self.processes:
             process.terminate()
+
+
 class VideoWriter:
-    
     def __init__(self, outputFile = "video.avi", format = "mp4v"):
+        print("__init__ VW start")
         self.outputFile = outputFile
         self.format = cv2.VideoWriter_fourcc(*format)
         self.SC = ScreenCatcher()
         self.bitrate = self.SC.bitrate
-        self.WriteProcess = Process(target = self.write, args = (self.SC.q, ))
-
-    def write(self, q):
-        a = q.get()
-        a = cv2.cvtColor(np.array(a["pic"]), cv2.COLOR_RGB2BGR)
+        self.WriteProcess = Process(target = self.write)
+        self.WriteProcess.start()
+        print("__init__ VW complete")
+    def write(self  ):
+        pic = self.SC.q.get()
+        print(pic)
+        pic = pic["pic"]
+        a = cv2.cvtColor(np.array(pic), cv2.COLOR_RGB2BGR)
         self.height, self.width, self.channels  = a.shape
         self.out = cv2.VideoWriter(self.outputFile, self.format, self.bitrate, (self.width, self.height))
         self.out.write(a)
-        startTime = timt.time() * 100
-        while (timt.time() * 100 - startTime) < 500: #expression
-            a = q.get()
-            a = cv2.cvtColor(np.array(a["pic"]), cv2.COLOR_RGB2BGR)
+        startTime = time.time() * 100
+        print("Bitrate : ", self.bitrate)
+        while (time.time() * 100 - startTime) < 500: #expression
+            pic = self.SC.q.get()
+            pic = pic["pic"]
+            a = cv2.cvtColor(np.array(pic), cv2.COLOR_RGB2BGR)
             self.out.write(a)
         self.save()
         self.SC.terminate()
@@ -53,4 +61,3 @@ class VideoWriter:
 if __name__ == "__main__":
     
     vW = VideoWriter()
-    vW.write()
