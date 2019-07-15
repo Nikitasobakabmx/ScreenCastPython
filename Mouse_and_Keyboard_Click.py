@@ -27,15 +27,12 @@ class Redirector:
             nowait = self.queue.get_nowait()['a']
             try:
                 if isinstance(nowait[3], bool):
-                    event.append([nowait[2].name, nowait[0],
-                                  nowait[1], nowait[3], None, time()])
+                    event.append([nowait[2].name, nowait[0], nowait[1], nowait[3], None, time()])
                 else:
                     if nowait[3] > 0:
-                        event.append(["up", nowait[0],
-                                      nowait[1], True, None, time()])
+                        event.append(["up", nowait[0], nowait[1], True, None, time()])
                     else:
-                        event.append(["down", nowait[0],
-                                      nowait[1], True, None, time()])
+                        event.append(["down", nowait[0], nowait[1], True, None, time()])
             except IndexError:
                 if len(nowait) == 1:
                     if isinstance(nowait[0], keyboard._win32.KeyCode):
