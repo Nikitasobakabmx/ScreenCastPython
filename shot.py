@@ -30,6 +30,7 @@ if __name__ == "__main__":
     threadFour.start()
     time.sleep(1)
     size = int(q.qsize() - q.qsize()/15)
+    print("FPS:", size)
     #threadOne.join()
     #threadTwo.join()
     #threadThree.join()
