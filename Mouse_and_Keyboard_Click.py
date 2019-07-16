@@ -12,7 +12,6 @@ class Redirector:
         def ev_redirector(to):
             def event_wrapper(*a, **kw):
                 self.queue.put({'to': to, 'a': deepcopy(a), 'kw': deepcopy(kw)})
-                sleep(float(1/frequency))
                 return self.should_work
             return event_wrapper
         self.listener_m = mouse.Listener(on_click=ev_redirector(on_click),
@@ -41,8 +40,6 @@ class Redirector:
                         event.append([None, None, None, None, nowait[0], time()])
                     else:
                         event.append([None, None, None, None, nowait[0].name, time()])
-                else:
-                    event.append([None, nowait[0], nowait[1], None, None, time()])
             return(event)
 
     def kill(self):
@@ -80,8 +77,7 @@ def on_release(key):
 mrd = Redirector(on_click=on_click, on_move=on_move, on_scroll=on_scroll)
 mrd.frequency = 11
 for _ in range(10000):
-    mrd.fire_events()
+    sleep(0.01)
+    print(mrd.fire_events())
 
 mrd.kill()
-
-
