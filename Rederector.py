@@ -6,6 +6,7 @@ from time import time, sleep
 class Redirector:
     def __init__(self, on_click, on_scroll, on_move):
         self.queue = Queue()
+        self.resultQ = Queue()
         self.should_work = True
         self.frequency = 60
 
@@ -21,29 +22,28 @@ class Redirector:
                                             on_release=ev_redirector(on_release))
         self.listener_m.start()
         self.listener_k.start()
-
+        self.sunthread = Thread(target = self.fire_events)
+        sunthread.start()
+        
     def fire_events(self):
         while not self.queue.empty():
-            elem = self.queue.get_nowait()
-
-
-            '''
+            nowait = self.queue.get_nowait()['a']
+            event = None
             try:
                 if isinstance(nowait[3], bool):
-                    event.append([nowait[2].name, nowait[0], nowait[1], nowait[3], None, time()])
+                    event.put([nowait[2].name, nowait[0], nowait[1], nowait[3], None, time()])
                 else:
                     if nowait[3] > 0:
-                        event.append(["up", nowait[0], nowait[1], True, None, time()])
+                        event.put(["up", nowait[0], nowait[1], True, None, time()])
                     else:
-                        event.append(["down", nowait[0], nowait[1], True, None, time()])
+                        event.put(["down", nowait[0], nowait[1], True, None, time()])
             except IndexError:
                 if len(nowait) == 1:
                     if isinstance(nowait[0], keyboard._win32.KeyCode):
-                        event.append([None, None, None, None, nowait[0], time()])
+                        event.put([None, None, None, None, nowait[0], time()])
                     else:
-                        event.append([None, None, None, None, nowait[0].name, time()])
-            return(event)
-            '''
+                        event.put([None, None, None, None, nowait[0].name, time()])
+
 
     def kill(self):
         self.should_work = False
@@ -51,6 +51,7 @@ class Redirector:
         self.listener_m.join()
         self.listener_k.stop()
         self.listener_k.join()
+        self.sunthread.kill()
 
 def on_move(x, y):
     return
@@ -80,7 +81,7 @@ mrd = Redirector(on_click=on_click, on_move=on_move, on_scroll=on_scroll)
 mrd.frequency = 11
 for _ in range(10000):
     sleep(0.01)
-    mrd.fire_events()
+    print(mrd.fire_events())
 
 mrd.kill()
 
