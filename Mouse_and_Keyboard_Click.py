@@ -25,7 +25,8 @@ class Redirector:
     def fire_events(self):
         while not self.queue.empty():
             elem = self.queue.get_nowait()
-            elem['to'](*elem['a'], **elem['kw'])
+
+
             '''
             try:
                 if isinstance(nowait[3], bool):
@@ -56,34 +57,32 @@ def on_move(x, y):
 
 def on_click(x, y, button, pressed):
     pass
-    print('{0} at {1}'.format(
-        'Pressed' if pressed else 'Released',
-        (x, y)))
+    #print('{0} at {1}'.format(
+    #    'Pressed' if pressed else 'Released',
+    #    (x, y)))
 
 def on_scroll(x, y, dx, dy):
-    print('Scrolled {0} at {1}'.format(
-        'down' if dy < 0 else 'up',
-        (x, y)))
+    pass
+    #print('Scrolled {0} at {1}'.format(
+    #    'down' if dy < 0 else 'up',
+    #    (x, y)))
 
 def on_press(key):
-    print('alphanumeric key {0} pressed'.format(
-           key.char))
+
+    'alphanumeric key {0} pressed'.format(
+           key.char)
 
 def on_release(key):
-    print('{0} released'.format(
-        key))
+    '{0} released'.format(
+        key)
 
 mrd = Redirector(on_click=on_click, on_move=on_move, on_scroll=on_scroll)
 mrd.frequency = 11
 for _ in range(10000):
     sleep(0.01)
-<<<<<<< HEAD
     mrd.fire_events()
 
 mrd.kill()
 
-=======
-    print(mrd.fire_events())
 
-mrd.kill()
->>>>>>> e491b3f81b58fd214b13c7a7b7bdef0b98e85c4e
+
