@@ -1,0 +1,111 @@
+<Key.esc: <27>>
+<Key.f1: <112>>
+<Key.f2: <113>>
+<Key.f3: <114>>
+<Key.f4: <115>>
+<Key.f5: <116>>
+<Key.f6: <117>>
+<Key.f7: <118>>
+<Key.f8: <119>>
+<Key.f9: <120>>
+<Key.f10: <121>
+<Key.f11: <122>
+<Key.f12: <123>
+<Key.print_screen: <44>>
+<Key.scroll_lock: <145>>
+<Key.pause: <19>>
+'`'
+'1'
+'2'
+'3'
+'4'
+'5'
+'6'
+'7'
+'8'
+'9'
+'0'
+'-'
+'='
+<Key.backspace: <8>>
+<Key.tab: <9>>
+'q'
+'w'
+'e'
+'r'
+'t'
+'y'
+'u'
+'i'
+'o'
+'p'
+'['
+']'
+<Key.enter: <13>>
+<Key.caps_lock: <20>>
+'a'
+'s'
+'d'
+'f'
+'g'
+'h'
+'j'
+'k'
+'l'
+';'
+"'"
+'\\'
+<Key.shift: <160>>
+'z'
+'x'
+'c'
+'v'
+'b'
+'n'
+'m'
+','
+'.'
+'/'
+<Key.shift_r: <161>>
+<Key.ctrl_l: <162>>
+<Key.cmd: <91>>
+<Key.alt_l: <164>>
+<Key.space: ' '>
+<Key.alt_r: <165>>
+<Key.menu: <93>>
+<Key.ctrl_r: <163>>
+<Key.print_screen: <44>>
+<Key.scroll_lock: <145>>
+<Key.pause: <19>>
+<Key.insert: <45>>
+<Key.home: <36>>
+<Key.page_up: <33>>
+<Key.delete: <46>>
+<Key.end: <35>>
+<Key.page_down: <34>>
+<Key.up: <38>>
+<Key.down: <40>>
+<Key.left: <37>>
+<Key.right: <39>>
+<Key.num_lock: <144>>
+'/'
+'*'
+'-'
+'+'
+'9'
+'8'
+'7'
+'4'
+'5'
+'6'
+'3'
+'2'
+'1'
+'0'
+'.'
+<Key.enter: <13>>
+<Button.left: (4, 2)>
+<Button.right: (16, 8)>
+'MoveUp'
+'MoveDown
+<Button.middle: (64, 32)>

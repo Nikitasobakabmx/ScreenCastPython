@@ -6,6 +6,7 @@ import time
 from ScreenCatcher import ScreenCatcher
 import pyautogui
 import PIL
+import Redirector
 
 class VideoWriter:
     mouse = PIL.Image.open("Images\Mouse\mouse.png") 
@@ -16,6 +17,11 @@ class VideoWriter:
         self.SC = ScreenCatcher()
         self.SC.expression = True
         self.threadSC = Thread(target = self.SC.start)
+        self.threadSC.start()
+        self.redirect = Redirect()
+        self.threadRedirect = Thread(target = self.redirect.start)
+        while self.SC.bitrate == 0:
+            pass
         self.WriteProcess = Thread(target=self.write)
         self.WriteProcess.start()
         print("__init__ VW complete")
@@ -32,8 +38,15 @@ class VideoWriter:
 
         print("Bitrate : ", self.SC.bitrate)
         startTime = time.time() * 100
+        previousPic = self.SC.q.get()
+        curKey = None
+        keys = []
         while not self.SC.q.empty():  # expression
-            pic = self.SC.q.get()
+            pic = previousPic
+              not self.redirect.event.empty():
+                key = self.redirect.event.get()
+                while
+            previousPic = self.SC.q.get()
             x, y = pyautogui.position()
             pic['pic'].paste(self.mouse, (x, y), self.mouse)
             pic = cv2.cvtColor(np.array(pic["pic"]), cv2.COLOR_RGB2BGR)
