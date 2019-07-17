@@ -1,5 +1,5 @@
 import cv2
-import Rederector
+from Redirector import Redirector
 import numpy as np
 from threading import Thread
 import time
@@ -8,13 +8,14 @@ import pyautogui
 import PIL
 
 class VideoWriter:
-    mouse = PIL.Image.open("Images\Mouse\mouse.png") 
+    mouse = PIL.Image.open("Images\Mouse\mouse.png")
     def __init__(self, outputFile="video.avi", format="mp4v"):
         print("__init__ VW start")
         self.outputFile = outputFile
         self.format = cv2.VideoWriter_fourcc(*format)
         self.SC = ScreenCatcher()
         self.SC.expression = True
+        self.Red = Redirector()
         self.threadSC = Thread(target = self.SC.start)
         self.WriteProcess = Thread(target=self.write)
         self.WriteProcess.start()
@@ -34,10 +35,26 @@ class VideoWriter:
         startTime = time.time() * 100
         while not self.SC.q.empty():  # expression
             pic = self.SC.q.get()
-            x, y = pyautogui.position()
-            pic['pic'].paste(self.mouse, (x, y), self.mouse)
-            pic = cv2.cvtColor(np.array(pic["pic"]), cv2.COLOR_RGB2BGR)
-            self.out.write(pic)
+            if True:
+                red = self.Red.event.get()
+                if red['but'] != None:
+                    if red['press'] == 'Pressed' or red['press'] == False:
+                        x, y = red['pos'][0], red['pos'][1]
+                        img_now = PIL.Image.open('{}.png'.format(red['but']))
+                        print(img_now)
+                        pic['pic'].paste(img_now, (x, y), img_now)
+                        pic = cv2.cvtColor(np.array(pic["pic"]), cv2.COLOR_RGB2BGR)
+                        self.out.write(pic)
+                    else:
+                        x, y = pyautogui.position()
+                        pic['pic'].paste(self.mouse, (x, y), self.mouse)
+                        pic = cv2.cvtColor(np.array(pic["pic"]), cv2.COLOR_RGB2BGR)
+                        self.out.write(pic)
+            else:
+                x, y = pyautogui.position()
+                pic['pic'].paste(self.mouse, (x, y), self.mouse)
+                pic = cv2.cvtColor(np.array(pic["pic"]), cv2.COLOR_RGB2BGR)
+                self.out.write(pic)
         endTime = time.time() * 100
         print("Work Time : ", endTime - startTime, "sec * 10^-2")
         self.save()
@@ -48,3 +65,9 @@ class VideoWriter:
     def save(self):
         self.out.release()
         cv2.destroyAllWindows()
+
+vw = VideoWriter()
+for i in range(100):
+    vw.write()
+vw.stop()
+vw.save()

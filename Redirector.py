@@ -24,28 +24,23 @@ class Redirector:
         pass
 
     def on_click(self, x, y, button, pressed):
-        self.event.put({"but": button, "pos":(x, y), "press": 'Pressed' if pressed else 'Released', "keyBoard": None, "time": time()})
+        self.event.put({"but": button.name, "pos":(x, y), "press": 'Pressed' if pressed else 'Released', "keyBoard": None, "time": time()})
 
     def on_scroll(self, x, y, dx, dy):
-        self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "pos":(x, y), "press": False, "keyBoard": None, "time": time()})
+        self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "pos":(x, y), "press": None, "keyBoard": None, "time": time()})
 
     def on_press(self, key):
         try:
             self.event.put({"but": None, "pos": None, "press": True, "keyBoard": key.char, "time": time()})
         except AttributeError:
-            self.event.put({"but": None, "pos": None, "press": True, "keyBoard": key, "time": time()})
+            self.event.put({"but": None, "pos": None, "press": True, "keyBoard": key.name, "time": time()})
 
     def on_release(self, key):
         try:
             self.event.put({"but": None, "pos": None, "press": False, "keyBoard": key.char, "time": time()})
         except AttributeError:
-            self.event.put({"but": None, "pos": None, "press": False, "keyBoard": key, "time": time()})
+            self.event.put({"but": None, "pos": None, "press": False, "keyBoard": key.name, "time": time()})
     def __del__(self):
         self.kill
 
-mrd = Redirector()
-try:
-    while True:
-        print(mrd.event.get())
-except KeyboardInterrupt:
-    del mrd
+
