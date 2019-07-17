@@ -6,9 +6,10 @@ from threading import Thread
 #{"but": but, "pos":(x, y), "press": bool,"keyBoard": key , "time":time}
 class Redirector:
     def __init__(self):
-        pass
-    def start(self):
         self.event = Queue()
+
+    def start(self):
+        
         self.listener_m = mouse.Listener(on_click=self.on_click,
                                        on_move=self.on_move,
                                        on_scroll=self.on_scroll)
@@ -16,6 +17,7 @@ class Redirector:
                                             on_release=self.on_release)
         self.listener_m.start()
         self.listener_k.start()
+
     def kill(self):
         self.listener_m.stop()
         self.listener_m.join()
@@ -26,52 +28,30 @@ class Redirector:
         pass
 
     def on_click(self, x, y, button, pressed):
-<<<<<<< HEAD:Rederector.py
-        self.event.put({"but": button, "keyBoard": None, "time": time()})
+        self.event.put({"but": button, "time": time()})
 
     def on_scroll(self, x, y, dx, dy):
-        self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "keyBoard": None, "time": time()})
-=======
-        self.event.put({"but": button.name, "pos":(x, y), "press": 'Pressed' if pressed else 'Released', "keyBoard": None, "time": time()})
-
-    def on_scroll(self, x, y, dx, dy):
-        self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "pos":(x, y), "press": None, "keyBoard": None, "time": time()})
->>>>>>> 7e34825809eebe9b0eef195e5dd826166f040aa1:Redirector.py
-
+        self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "time": time()})
     def on_press(self, key):
         try:
-            self.event.put({"but": None, "keyBoard": key.char, "time": time()})
+            self.event.put({"but": key.char, "time": time()})
         except AttributeError:
-<<<<<<< HEAD:Rederector.py
-            self.event.put({"but": None, "keyBoard": key, "time": time()})
-
-    def on_release(self, key):
-        pass
-        # try:
-        #     self.event.put({"but": None, "pos": None, "press": False, "keyBoard": key.char, "time": time()})
-        # except AttributeError:
-        #     self.event.put({"but": None, "pos": None, "press": False, "keyBoard": key, "time": time()})
-    def __del__(self):
-        self.kill
-
-mrd = Redirector()
-f = open('keys.txt', 'w')
-try:
-    while True:
-        f.write(str(mrd.event.get()) + "\n")
-except KeyboardInterrupt:
-    del mrd
-f.close()
-=======
-            self.event.put({"but": None, "pos": None, "press": True, "keyBoard": key.name, "time": time()})
+            self.event.put({"but": key.name, "time": time()})
 
     def on_release(self, key):
         try:
-            self.event.put({"but": None, "pos": None, "press": False, "keyBoard": key.char, "time": time()})
+            self.event.put({"but": key.char, "time": time()})
         except AttributeError:
-            self.event.put({"but": None, "pos": None, "press": False, "keyBoard": key.name, "time": time()})
+            self.event.put({"but": key.name, "time": time()})
+        
     def __del__(self):
-        self.kill
+        pass
 
-
->>>>>>> 7e34825809eebe9b0eef195e5dd826166f040aa1:Redirector.py
+# mrd = Redirector()
+# f = open('keys.txt', 'w')
+# try:
+#     while True:
+#         f.write(str(mrd.event.get()) + "\n")
+# except KeyboardInterrupt:
+#     del mrd
+# f.close()
