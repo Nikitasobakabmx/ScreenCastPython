@@ -26,15 +26,23 @@ class Redirector:
         pass
 
     def on_click(self, x, y, button, pressed):
+<<<<<<< HEAD:Rederector.py
         self.event.put({"but": button, "keyBoard": None, "time": time()})
 
     def on_scroll(self, x, y, dx, dy):
         self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "keyBoard": None, "time": time()})
+=======
+        self.event.put({"but": button.name, "pos":(x, y), "press": 'Pressed' if pressed else 'Released', "keyBoard": None, "time": time()})
+
+    def on_scroll(self, x, y, dx, dy):
+        self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "pos":(x, y), "press": None, "keyBoard": None, "time": time()})
+>>>>>>> 7e34825809eebe9b0eef195e5dd826166f040aa1:Redirector.py
 
     def on_press(self, key):
         try:
             self.event.put({"but": None, "keyBoard": key.char, "time": time()})
         except AttributeError:
+<<<<<<< HEAD:Rederector.py
             self.event.put({"but": None, "keyBoard": key, "time": time()})
 
     def on_release(self, key):
@@ -54,3 +62,16 @@ try:
 except KeyboardInterrupt:
     del mrd
 f.close()
+=======
+            self.event.put({"but": None, "pos": None, "press": True, "keyBoard": key.name, "time": time()})
+
+    def on_release(self, key):
+        try:
+            self.event.put({"but": None, "pos": None, "press": False, "keyBoard": key.char, "time": time()})
+        except AttributeError:
+            self.event.put({"but": None, "pos": None, "press": False, "keyBoard": key.name, "time": time()})
+    def __del__(self):
+        self.kill
+
+
+>>>>>>> 7e34825809eebe9b0eef195e5dd826166f040aa1:Redirector.py
