@@ -19,6 +19,7 @@ class VideoWriter:
         self.threadSC.start()
         self.redirect = Redirector()
         self.threadRedirect = Thread(target = self.redirect.start)
+        self.threadRedirect.start()
         while self.SC.bitrate == 0:
             pass
         self.WriteProcess = Thread(target=self.write)
@@ -49,7 +50,7 @@ class VideoWriter:
                     curKey = self.redirect.event.get()
             if not keys == []:
                 print(keys)
-            x, y = pyautogui.position()
+            x, y = pic["position"]
             pic['pic'].paste(self.mouse, (x, y), self.mouse)
             pic = cv2.cvtColor(np.array(pic["pic"]), cv2.COLOR_RGB2BGR)
             self.out.write(pic)
@@ -62,12 +63,6 @@ class VideoWriter:
         self.SC.expession = expession
 
     def save(self):
-        self.redirect.kill()
+        #self.redirect.kill()
         self.out.release()
-        cv2.destroyAllWindows()
-
-vw = VideoWriter()
-for i in range(100):
-    vw.write()
-vw.stop()
-vw.save()
+        cv2.destroyAllWindows() 

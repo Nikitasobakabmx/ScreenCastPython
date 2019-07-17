@@ -7,9 +7,8 @@ from threading import Thread
 class Redirector:
     def __init__(self):
         self.event = Queue()
-
+        self.position = None
     def start(self):
-        
         self.listener_m = mouse.Listener(on_click=self.on_click,
                                        on_move=self.on_move,
                                        on_scroll=self.on_scroll)
@@ -25,12 +24,14 @@ class Redirector:
         self.listener_k.join()
 
     def on_move(self, x, y):
-        pass
+        self.position = (x, y)
 
     def on_click(self, x, y, button, pressed):
         self.event.put({"but": button, "time": time()})
+        self.position = (x, y)
 
     def on_scroll(self, x, y, dx, dy):
+        self.position = (x, y)
         self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "time": time()})
     def on_press(self, key):
         try:
@@ -45,13 +46,15 @@ class Redirector:
             self.event.put({"but": key.name, "time": time()})
         
     def __del__(self):
-        pass
-
-# mrd = Redirector()
-# f = open('keys.txt', 'w')
-# try:
-#     while True:
-#         f.write(str(mrd.event.get()) + "\n")
-# except KeyboardInterrupt:
-#     del mrd
-# f.close()
+        self.kill()
+if __name__ == "__main__":
+    mrd = Redirector()
+    mrd.start()
+    f = open('NoKeys.txt', 'w')
+    try:
+        for _ in range(10):
+            f.write(str(mrd.event.get()) + "\n")
+            print(str(mrd.event.get()) + "\n")
+    except KeyboardInterrupt:
+        del mrd
+    f.close()
