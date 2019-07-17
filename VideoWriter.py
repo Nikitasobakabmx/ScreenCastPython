@@ -15,7 +15,7 @@ class VideoWriter:
         self.format = cv2.VideoWriter_fourcc(*format)
         self.SC = ScreenCatcher()
         self.SC.expression = True
-        self.threadSC = Thread(target = self.SC.start)
+        self.threadSC = Thread(target = self.SC.shot)
         self.threadSC.start()
         self.redirect = Redirector()
         self.threadRedirect = Thread(target = self.redirect.start)

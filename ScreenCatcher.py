@@ -8,20 +8,13 @@ from Redirector import Redirector
 class ScreenCatcher:
     def __init__(self):
         print("start SC")
-        self.q = Queue()
-        self.start()        
+        self.q = Queue()        
         self.expression = True
         print("stop SC")
         self.bitrate = 0
         self.redirect = Redirector()
         self.thread = Thread(target = self.redirect.start())
         self.thread.start()
-
-    def start(self):
-        print("start start")
-        self.threadShot = Thread(target=self.shot)
-        self.threadShot.start()
-        print("stop start")
 
     def shot(self):
         self.startTime = time.time() * 100
