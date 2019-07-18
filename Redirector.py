@@ -27,12 +27,12 @@ class Redirector:
         self.position = (x, y)
 
     def on_click(self, x, y, button, pressed):
-        self.event.put({"but": button, "time": time()})
+        self.event.put({"but": button.name + "_m", "time": time()})
         self.position = (x, y)
 
-    def on_scroll(self, x, y, dx, dy):
+    def on_scroll(self, x, y, dy, button):
         self.position = (x, y)
-        self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "time": time()})
+        self.event.put({"but": "MoveUp_m" if dy > 0 else "MoveDown_m", "time": time()})
     def on_press(self, key):
         try:
             self.event.put({"but": key.char, "time": time()})
@@ -58,3 +58,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         del mrd
     f.close()
+

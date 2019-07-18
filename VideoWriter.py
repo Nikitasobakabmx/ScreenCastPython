@@ -39,19 +39,33 @@ class VideoWriter:
         nextPic = self.SC.q.get()
         curKey = None
         keys = []
-        while not self.SC.q.empty():  # expression  
+        while not self.SC.q.empty():  # expression
             pic = nextPic
             nextPic = self.SC.q.get()
             if not self.redirect.event.empty():
                 if curKey == None:
                     curKey = self.redirect.event.get()
-                while  pic["time"] < curKey["time"] < nextPic["time"]:
-                    keys.append(curKey["but"])
+                while curKey["time"] < nextPic["time"] and not self.redirect.event.empty():
+                    if curKey["but"] not in keys and curKey["but"] != None:
+                        keys.append(curKey["but"])
                     curKey = self.redirect.event.get()
-            if not keys == []:
-                print(keys)
+            print(keys)
             x, y = pic["position"]
-            pic['pic'].paste(self.mouse, (x, y), self.mouse)
+            ImgSize = 0
+            while keys != []:
+                if keys[len(keys) - 1].find("_m") == -1:
+                    x, y = pic["position"]
+                    pic['pic'].paste(self.mouse, (x, y), self.mouse)
+                    x, y = 25 + ImgSize, 900
+                    img = PIL.Image.open("Images\\Keyboard\\{}.png".format(keys[len(keys) - 1]))
+                    ImgSize += 160
+                    pic['pic'].paste(img, (x, y), img)
+                else:
+                    img = PIL.Image.open("Images\\Mouse\\{}.png".format(keys[len(keys) - 1]))
+                    pic['pic'].paste(img, (x, y), img)
+                keys.pop()
+            else:
+                pic['pic'].paste(self.mouse, (x, y), self.mouse)
             pic = cv2.cvtColor(np.array(pic["pic"]), cv2.COLOR_RGB2BGR)
             self.out.write(pic)
             keys = []

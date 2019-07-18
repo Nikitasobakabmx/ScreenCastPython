@@ -22,7 +22,7 @@ class ScreenCatcher:
             self.q.put({"pic": pyautogui.screenshot(), "time": time.time() * 100, "position": self.redirect.position if self.redirect.position != None else (0,0)})
         self.bitrate = self.q.qsize()
         self.startTime = time.time() * 100
-        while (time.time()*100 - self.startTime) < 3000:
+        while (time.time()*100 - self.startTime) < 1000:
             self.q.put({"pic": pyautogui.screenshot(), "time": time.time() * 100, "position": self.redirect.position if self.redirect.position != None else (0,0)})
         endTime = time.time() * 100
         print("Shoting time : ", endTime - self.startTime, " sec * 10^-2")
