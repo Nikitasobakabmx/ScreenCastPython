@@ -7,7 +7,7 @@ from threading import Thread
 class Redirector:
     def __init__(self):
         self.event = Queue()
-        self.position = None
+        self.position = (0,0)
     def start(self):
         self.listener_m = mouse.Listener(on_click=self.on_click,
                                        on_move=self.on_move,

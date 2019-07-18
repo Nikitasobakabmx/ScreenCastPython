@@ -6,9 +6,10 @@ import time
 from Redirector import Redirector
 
 class ScreenCatcher:
-    def __init__(self, redirector):
+    def __init__(self, redirector, shotEvent):
         print("start SC")
         self.redirect = redirector
+        self.shotEvent = shotEvent
         self.q = Queue()        
         self.expression = True
         
@@ -17,7 +18,8 @@ class ScreenCatcher:
         startTime  = time.monotonic_ns()
         self.q.put({"pic": pyautogui.screenshot(), "time": time.time() * 100, "position": self.redirect.position})
         self.time = time.monotonic_ns() - startTime
-        self.bitrate = int(0.88*(10**9/self.time))
+        self.bitrate = int(0.95*(10**9/self.time))
+        self.time = int((10**9/self.bitrate))
         
         print("stop SC")
 
@@ -34,6 +36,8 @@ class ScreenCatcher:
                 time.sleep((self.time - curTime)/10**9)
             else:
                 loses.append(self.time - curTime)
+            self.shotEvent.set()
+        self.expression = False
         endTime = time.time() * 100
         print("Shoting time : ", endTime - startTime, " sec * 10^-2")
         print(loses)

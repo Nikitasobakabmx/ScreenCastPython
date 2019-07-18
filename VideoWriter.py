@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from threading import Thread
+from threading import Thread, Event
 import time
 from ScreenCatcher import ScreenCatcher
 import pyautogui
@@ -13,17 +13,22 @@ class VideoWriter:
         print("__init__ VW start")
         self.outputFile = outputFile
         self.format = cv2.VideoWriter_fourcc(*format)
-        self.SC = ScreenCatcher()
-        self.SC.expression = True
-        self.threadSC = Thread(target = self.SC.shot)
-        self.threadSC.start()
         self.redirect = Redirector()
+        self.shotEvent = Event()
+        self.SC = ScreenCatcher(self.redirect, self.shotEvent)
+        self.SC.expression = True
+        
+        
+        #trading KeyBoard and mouse
         self.threadRedirect = Thread(target = self.redirect.start)
         self.threadRedirect.start()
-        while self.SC.bitrate == 0:
-            pass
-        self.WriteProcess = Thread(target=self.write)
-        self.WriteProcess.start()
+
+        #threading screeShot
+        self.threadSC = Thread(target = self.SC.shot)
+        self.threadSC.start()
+
+        #start writing
+        self.write()
         print("__init__ VW complete")
 
     def write(self):
@@ -39,17 +44,18 @@ class VideoWriter:
         nextPic = self.SC.q.get()
         curKey = None
         keys = []
-        while not self.SC.q.empty():  # expression  
+        while self.SC.expression:  # expression  
+            self.shotEvent.wait()
             pic = nextPic
             nextPic = self.SC.q.get()
-            if not self.redirect.event.empty():
-                if curKey == None:
-                    curKey = self.redirect.event.get()
-                while  pic["time"] < curKey["time"] < nextPic["time"]:
-                    keys.append(curKey["but"])
-                    curKey = self.redirect.event.get()
-            if not keys == []:
-                print(keys)
+            # if not self.redirect.event.empty():
+            #     if curKey == None:
+            #         curKey = self.redirect.event.get()
+            #     while curKey["time"] < nextPic["time"]:
+            #         keys.append(curKey["but"])
+            #         curKey = self.redirect.event.get()
+            # if len(keys) != 0:
+            #     print(keys)
             x, y = pic["position"]
             pic['pic'].paste(self.mouse, (x, y), self.mouse)
             pic = cv2.cvtColor(np.array(pic["pic"]), cv2.COLOR_RGB2BGR)
