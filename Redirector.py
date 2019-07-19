@@ -7,7 +7,8 @@ from threading import Thread
 class Redirector:
     def __init__(self):
         self.event = Queue()
-        self.position = None
+        self.events = []
+        self.position = (0,0)
     def start(self):
         self.listener_m = mouse.Listener(on_click=self.on_click,
                                        on_move=self.on_move,
@@ -27,23 +28,33 @@ class Redirector:
         self.position = (x, y)
 
     def on_click(self, x, y, button, pressed):
-        self.event.put({"but": button.name + "_m", "time": time()})
+        if button not in self.events:            
+            self.events.append(button)
         self.position = (x, y)
 
-    def on_scroll(self, x, y, dy, button):
+    def on_scroll(self, x, y, dx, dy):
         self.position = (x, y)
-        self.event.put({"but": "MoveUp_m" if dy > 0 else "MoveDown_m", "time": time()})
+        if dy > 0 and 'MoveUp' not in self.events:
+            self.events.append('MoveUp')
+        elif dy <= 0 and 'MoveUp' not in self.events:
+            self.events.append('MoveUp')
+        #self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "time": time()})
+
     def on_press(self, key):
         try:
-            self.event.put({"but": key.char, "time": time()})
+            if key.char not in self.events:
+                self.events.append(key.char)
         except AttributeError:
-            self.event.put({"but": key.name, "time": time()})
+            if key.name not in self.events:
+                self.events.append(key.name)
+        #self.event.put({"but": key.name, "time": time()})
 
     def on_release(self, key):
         try:
-            self.event.put({"but": key.char, "time": time()})
+            print('yos')
+            self.events.remove(key.char)
         except AttributeError:
-            self.event.put({"but": key.name, "time": time()})
+            self.events.remove(key.name)
         
     def __del__(self):
         self.kill()
@@ -52,10 +63,9 @@ if __name__ == "__main__":
     mrd.start()
     f = open('NoKeys.txt', 'w')
     try:
-        for _ in range(10):
-            f.write(str(mrd.event.get()) + "\n")
-            print(str(mrd.event.get()) + "\n")
+        for _ in range(1000000):
+            f.write(str(mrd.events) + "\n")
+            print(str(mrd.events) + "\n")
     except KeyboardInterrupt:
         del mrd
     f.close()
-
