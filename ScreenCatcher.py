@@ -17,9 +17,9 @@ class ScreenCatcher:
             self.mutex = Lock()
 
             #count bitrate
-            startTime  = time.perf-counter()
+            startTime  = time.perf_counter()
             self.q.put({"pic": mss.mss().grab(self.monitor), "time": time.time() * 100, "position": self.redirect.position})
-            self.time = time.monotonic_ns() - startTime
+            self.time = time.perf_counter() - startTime
             self.bitrate = int(0.95*(10**9/self.time))
             self.time = int((10**9/self.bitrate))
 
@@ -33,7 +33,7 @@ class ScreenCatcher:
             self.eventList.append(Event())
         self.threadList = []
         for i in range(shots):
-            self.threadList.append(Thread(target = self.shot_once, args = (eventList[i-1], eventList[i], self.VWEvent if (i == shot-1) else None)))
+            self.threadList.append(Thread(target = self.shot_once, args = (eventList[i-1], eventList[i], self.VWEvent if (i == shot-1) else None, )))
         for thread in self.threadList:
             thread.start()
 
@@ -43,7 +43,7 @@ class ScreenCatcher:
             i.stop()
             i.join()
 
-    def shot_once(self, previousEvent, nextEvent, queueEvent):
+    def shot_once(self, previousEvent, nextEvent, queueEvent, count):
         while True:
             previousEvent.wait(1)
             self.mutex.asacquire()
@@ -56,3 +56,5 @@ class ScreenCatcher:
             self.mutex.release()
 
 if __name__ == "__main__":
+    ec = Event()
+    sc = ScreenCatcher(ec)

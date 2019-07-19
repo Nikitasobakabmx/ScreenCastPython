@@ -57,7 +57,8 @@ class Redirector:
             self.events.remove(key.name)
         
     def __del__(self):
-        self.kill()
+        pass
+        #self.kill()
 if __name__ == "__main__":
     mrd = Redirector()
     mrd.start()
