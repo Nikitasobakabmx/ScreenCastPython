@@ -7,77 +7,52 @@ import time
 from Redirector import Redirector
 
 class ScreenCatcher:
-<<<<<<< HEAD
-    
-    def __init__(self, redirector, shotEvent):
+    def __init__(self, event):
         with mss.mss() as sct:
             print("start SC")
-            self.redirect = redirector
-            self.shotEvent = shotEvent
-            self.q = Queue()        
-            self.expression = True
+            self.redirect = Redirector()
+            self.VWEvent = event
+            self.q = Queue()
             self.monitor = sct.monitors[1]
             self.mutex = Lock()
 
             #count bitrate
-            startTime  = time.monotonic_ns()
+            startTime  = time.perf-counter()
             self.q.put({"pic": mss.mss().grab(self.monitor), "time": time.time() * 100, "position": self.redirect.position})
             self.time = time.monotonic_ns() - startTime
             self.bitrate = int(0.95*(10**9/self.time))
             self.time = int((10**9/self.bitrate))
-            self.shot_many()
+
+            #dying there
+            self.shotFactory(self.bitrate)
             print("stop SC")
 
-
-    def shot(self):
-        print("start Shot")
-        loses = []
-        startTime = time.time() * 100
-        while (time.time()*100 -  startTime) < 3000:
-            curStartTime = time.monotonic_ns()
-            self.q.put({"pic": pyautogui.screenshot(), "time": time.time() * 100, "position": self.redirect.position})
-            curTime = time.monotonic_ns() - curStartTime
-            if (self.time - curTime) > 0:
-                time.sleep((self.time - curTime)/10**9)
-                self.shotEvent.set()
-            else:
-                loses.append(self.time - curTime)
-=======
-    def __init__(self):
-        print("start SC")
-        self.q = Queue()        
-        self.expression = True
-        print("stop SC")
-        self.bitrate = 0
-        self.redirect = Redirector()
-        self.thread = Thread(target = self.redirect.start())
-        self.thread.start()
-
-    def shot(self):
-        self.startTime = time.time() * 100
-        while (time.time()*100 - self.startTime) < 100:
-            self.q.put({"pic": pyautogui.screenshot(), "time": time.time() * 100, "position": self.redirect.position if self.redirect.position != None else (0,0)})
-        self.bitrate = self.q.qsize()
-        self.startTime = time.time() * 100
-        while (time.time()*100 - self.startTime) < 1000:
-            self.q.put({"pic": pyautogui.screenshot(), "time": time.time() * 100, "position": self.redirect.position if self.redirect.position != None else (0,0)})
->>>>>>> 5d461f607decfc20e94628fba83f54edb741feda
-        endTime = time.time() * 100
-        print("Shoting time : ", endTime - self.startTime, " sec * 10^-2")
-
-    def shotFactory(self):
+    def shotFactory(self, shots):
+        self.eventList = []
+        for _ in range(shots):
+            self.eventList.append(Event())
+        self.threadList = []
+        for i in range(shots):
+            self.threadList.append(Thread(target = self.shot_once, args = (eventList[i-1], eventList[i], self.VWEvent if (i == shot-1) else None)))
+        for thread in self.threadList:
+            thread.start()
 
 
-    def shot_once(self, previousEvent, nextEvent, queueEvent, time):
-        self.queueEvent = queueEvent
-        self.time = 1 - time
+    def stopFactory(self, shots):
+        for i in self.threadList:
+            i.stop()
+            i.join()
+
+    def shot_once(self, previousEvent, nextEvent, queueEvent):
         while True:
-            try:
-                previousEvent.wait(1)
-                mutex.asacquire()
-                self.q.put({"pic": mss.mss().grab(self.monitor), "time": time.time() * 100, "position": self.redirect.position})
-                nextEvent.set()
+            previousEvent.wait(1)
+            self.mutex.asacquire()
+                        #screenShot                     #mouse position         #list of key
+            self.q.put((mss.mss().grab(self.monitor), self.redirect.position, self.redirect.events))
+            self.redirect.events = []
+            nextEvent.set()
+            if queueEvent != None:
                 queueEvent.set()
-                mutex.release()
-            except
+            self.mutex.release()
 
+if __name__ == "__main__":
