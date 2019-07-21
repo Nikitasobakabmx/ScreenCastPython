@@ -17,13 +17,16 @@ class ScreenCatcher:
             self.mutex = Lock()
 
             #count bitrate
+            print("count_bitrate")
             startTime  = time.perf_counter()
             self.q.put({"pic": mss.mss().grab(self.monitor), "time": time.time() * 100, "position": self.redirect.position})
             self.time = time.perf_counter() - startTime
             self.bitrate = int(0.95*(10**9/self.time))
+            print(self.bitrate)
             self.time = int((10**9/self.bitrate))
 
             #dying there
+            print("dying")
             self.shotFactory(self.bitrate)
             print("stop SC")
 
@@ -33,7 +36,7 @@ class ScreenCatcher:
             self.eventList.append(Event())
         self.threadList = []
         for i in range(shots):
-            self.threadList.append(Thread(target = self.shot_once, args = (eventList[i-1], eventList[i], self.VWEvent if (i == shot-1) else None, )))
+            self.threadList.append(Thread(target = self.shot_once, args = (self.eventList[i-1], self.eventList[i], self.VWEvent if (i == self.shot-1) else None, )))
         for thread in self.threadList:
             thread.start()
 

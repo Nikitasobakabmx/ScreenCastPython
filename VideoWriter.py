@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from threading import Thread
+from threading import Thread, Event
 import time
 from ScreenCatcher import ScreenCatcher
 import pyautogui
@@ -13,13 +13,8 @@ class VideoWriter:
         print("__init__ VW start")
         self.outputFile = outputFile
         self.format = cv2.VideoWriter_fourcc(*format)
-        self.SC = ScreenCatcher()
-        self.SC.expression = True
-        self.threadSC = Thread(target = self.SC.shot)
-        self.threadSC.start()
-        self.redirect = Redirector()
-        self.threadRedirect = Thread(target = self.redirect.start)
-        self.threadRedirect.start()
+        self.ev = Event()
+        self.SC = ScreenCatcher(self.ev)
         while self.SC.bitrate == 0:
             pass
         self.WriteProcess = Thread(target=self.write)
@@ -27,48 +22,39 @@ class VideoWriter:
         print("__init__ VW complete")
 
     def write(self):
+        self.ev.wait(1)
         print("start write")
-        pic = self.SC.q.get()   
-        a = cv2.cvtColor(np.array(pic["pic"]), cv2.COLOR_RGB2BGR)
+        queue = self.SC.q.get()
+        print(queue)
+        a = cv2.cvtColor(np.array(queue[0]), cv2.COLOR_RGB2BGR)
         self.height, self.width, self.channels = a.shape
         self.out = cv2.VideoWriter(self.outputFile, self.format, self.SC.bitrate, (self.width, self.height))
         self.out.write(a)
 
         print("Bitrate : ", self.SC.bitrate)
         startTime = time.time() * 100
-        nextPic = self.SC.q.get()
         curKey = None
-        keys = []
         while not self.SC.q.empty():  # expression
-            pic = nextPic
-            nextPic = self.SC.q.get()
-            if not self.redirect.event.empty():
-                if curKey == None:
-                    curKey = self.redirect.event.get()
-                while curKey["time"] < nextPic["time"] and not self.redirect.event.empty():
-                    if curKey["but"] not in keys and curKey["but"] != None:
-                        keys.append(curKey["but"])
-                    curKey = self.redirect.event.get()
-            print(keys)
-            x, y = pic["position"]
+            queue = self.SC.q.get()
+            x, y = queue[1]
             ImgSize = 0
+            keys = queue[2]
             while keys != []:
-                if keys[len(keys) - 1].find("_m") == -1:
-                    x, y = pic["position"]
-                    pic['pic'].paste(self.mouse, (x, y), self.mouse)
+                x, y = queue[1]
+                if not keys[0].find("_m"):
+                    queue[0].paste(self.mouse, (x, y), self.mouse)
                     x, y = 25 + ImgSize, 900
-                    img = PIL.Image.open("Images\\Keyboard\\{}.png".format(keys[len(keys) - 1]))
+                    img = PIL.Image.open("Images\\Keyboard\\{}.png".format(keys[0]))
                     ImgSize += 160
-                    pic['pic'].paste(img, (x, y), img)
+                    queue[0].paste(img, (x, y), img)
                 else:
-                    img = PIL.Image.open("Images\\Mouse\\{}.png".format(keys[len(keys) - 1]))
-                    pic['pic'].paste(img, (x, y), img)
-                keys.pop()
+                    img = PIL.Image.open("Images\\Mouse\\{}.png".format(keys[0]))
+                    queue[0].paste(img, (x, y), img)
+                keys.pop([0])
             else:
-                pic['pic'].paste(self.mouse, (x, y), self.mouse)
-            pic = cv2.cvtColor(np.array(pic["pic"]), cv2.COLOR_RGB2BGR)
-            self.out.write(pic)
-            keys = []
+                queue[0].paste(self.mouse, (x, y), self.mouse)
+            queue[0] = cv2.cvtColor(np.array(queue[0]), cv2.COLOR_RGB2BGR)
+            self.out.write(queue[0])
         endTime = time.time() * 100
         print("Work Time : ", endTime - startTime, "sec * 10^-2")
         self.save()
@@ -79,4 +65,4 @@ class VideoWriter:
     def save(self):
         #self.redirect.kill()
         self.out.release()
-        cv2.destroyAllWindows() 
+        cv2.destroyAllWindows()
