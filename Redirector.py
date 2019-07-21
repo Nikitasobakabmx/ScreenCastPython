@@ -8,6 +8,8 @@ class Redirector:
     def __init__(self):
         self.event = Queue()
         self.position = None
+        self.listener_m = None
+        self.listener_k = None
     def start(self):
         self.listener_m = mouse.Listener(on_click=self.on_click,
                                        on_move=self.on_move,
@@ -19,9 +21,7 @@ class Redirector:
 
     def kill(self):
         self.listener_m.stop()
-        self.listener_m.join()
         self.listener_k.stop()
-        self.listener_k.join()
 
     def on_move(self, x, y):
         self.position = (x, y)
@@ -46,7 +46,8 @@ class Redirector:
             self.event.put({"but": key.name, "time": time()})
         
     def __del__(self):
-        self.kill()
+        pass
+        #self.kill()
 if __name__ == "__main__":
     mrd = Redirector()
     mrd.start()

@@ -1,14 +1,12 @@
 import os
 from queue import Queue
-import pyautogui
+# import pyautogui
 import mss
 from threading import Thread, Lock, Event
 import time
 from Redirector import Redirector
 
 class ScreenCatcher:
-<<<<<<< HEAD
-    
     def __init__(self, redirector, shotEvent):
         with mss.mss() as sct:
             print("start SC")
@@ -17,67 +15,62 @@ class ScreenCatcher:
             self.q = Queue()        
             self.expression = True
             self.monitor = sct.monitors[1]
-            self.mutex = Lock()
+            #self.mutex = Lock()
 
             #count bitrate
             startTime  = time.monotonic_ns()
             self.q.put({"pic": mss.mss().grab(self.monitor), "time": time.time() * 100, "position": self.redirect.position})
-            self.time = time.monotonic_ns() - startTime
-            self.bitrate = int(0.95*(10**9/self.time))
-            self.time = int((10**9/self.bitrate))
-            self.shot_many()
+            self.shotTime = time.monotonic_ns() - startTime
+            self.bitrate = int(0.90*(10**9/self.shotTime))
+            self.shotTime = int((10**9/self.bitrate))
+
+            self.shotFactory()
             print("stop SC")
 
 
-    def shot(self):
-        print("start Shot")
-        loses = []
-        startTime = time.time() * 100
-        while (time.time()*100 -  startTime) < 3000:
-            curStartTime = time.monotonic_ns()
-            self.q.put({"pic": pyautogui.screenshot(), "time": time.time() * 100, "position": self.redirect.position})
-            curTime = time.monotonic_ns() - curStartTime
-            if (self.time - curTime) > 0:
-                time.sleep((self.time - curTime)/10**9)
-                self.shotEvent.set()
-            else:
-                loses.append(self.time - curTime)
-=======
-    def __init__(self):
-        print("start SC")
-        self.q = Queue()        
-        self.expression = True
-        print("stop SC")
-        self.bitrate = 0
-        self.redirect = Redirector()
-        self.thread = Thread(target = self.redirect.start())
-        self.thread.start()
+    # def shot(self):
+    #     print("start Shot")
+    #     loses = []
+    #     startTime = time.time() * 100
+    #     while (time.time()*100 -  startTime) < 3000:
+    #         curStartTime = time.monotonic_ns()
+    #         self.q.put({"pic": pyautogui.screenshot(), "time": time.time() * 100, "position": self.redirect.position})
+    #         curTime = time.monotonic_ns() - curStartTime
+    #         if (self.time - curTime) > 0:
+    #             time.sleep((self.time - curTime)/10**9)
+    #             self.shotEvent.set()
+    #         else:
+    #             loses.append(self.time - curTime)
 
-    def shot(self):
-        self.startTime = time.time() * 100
-        while (time.time()*100 - self.startTime) < 100:
-            self.q.put({"pic": pyautogui.screenshot(), "time": time.time() * 100, "position": self.redirect.position if self.redirect.position != None else (0,0)})
-        self.bitrate = self.q.qsize()
-        self.startTime = time.time() * 100
-        while (time.time()*100 - self.startTime) < 1000:
-            self.q.put({"pic": pyautogui.screenshot(), "time": time.time() * 100, "position": self.redirect.position if self.redirect.position != None else (0,0)})
->>>>>>> 5d461f607decfc20e94628fba83f54edb741feda
-        endTime = time.time() * 100
-        print("Shoting time : ", endTime - self.startTime, " sec * 10^-2")
+    #     endTime = time.time() * 100
+    #     print("Shoting time : ", endTime - self.startTime, " sec * 10^-2")
 
     def shotFactory(self):
+        nextEvent = Event()
+        previousEvent = Event()
+        #count time of create Thraed
+        startTime = time.monotonic_ns()
+        threadOne = Thread(target = self.shot_once, args = (previousEvent, nextEvent, self.shotEvent, self.shotTime, self.redirect))
+        endTime = time.monotonic_ns() - startTime
 
+        threadTwo = Thread(target = self.shot_once, args = (nextEvent, previousEvent, self.shotEvent, self.shotTime, self.redirect))
+        threadOne.start()
+        time.sleep(self.shotTime - endTime)
+        threadTwo.start()
 
-    def shot_once(self, previousEvent, nextEvent, queueEvent, time):
+    def shot_once(self, previousEvent, nextEvent, queueEvent, shotTime, redirect):
         self.queueEvent = queueEvent
-        self.time = 1 - time
+        #local = 1.0 - time
         while True:
-            try:
-                previousEvent.wait(1)
-                mutex.asacquire()
-                self.q.put({"pic": mss.mss().grab(self.monitor), "time": time.time() * 100, "position": self.redirect.position})
-                nextEvent.set()
-                queueEvent.set()
-                mutex.release()
-            except
+            previousEvent.wait(1)
+            #self.mutex.asacquire()
+            self.q.put({"pic": mss.mss().grab(self.monitor), "time": time.time() * 100, "position": redirect.position})
+            nextEvent.set()
+            queueEvent.set()
+            #mutex.release()
 
+if __name__ == "__main__":
+    redirect = Redirector()
+    thread = Thread(target = redirect.start)
+    ev = Event()
+    test = ScreenCatcher(redirect, ev)
