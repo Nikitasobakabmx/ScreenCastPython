@@ -1,21 +1,17 @@
 import cv2
 from numpy import array
 from threading import Thread, Event
-from time import perf_counter
 from ScreenCatcher import ScreenCatcher
-from Redirector import Redirector
-from copy import deepcopy
 from time import perf_counter
 try:
     import Image, ImageDraw, ImageFont
 except ImportError:
     from PIL import Image, ImageDraw, ImageFont
-from PIL import ImageDraw, ImageFont
 
 class VideoWriter:
     
     def __init__(self, outputFile="video.avi", format="mp4v"):
-        self.mouse = Image.open("Images/Mouse/mouse.png")
+        self.mouse = Image.open("Images\\Mouse\\mouse.png")
         self.outputFile = outputFile
         self.format = cv2.VideoWriter_fourcc(*format)
         
@@ -30,11 +26,14 @@ class VideoWriter:
         self.ev = Event()
         
         self.SC = ScreenCatcher(self.ev)
-
-        self.WriteProcess = Thread(target=self.write)
-        self.WriteProcess.start()
+        self.SC.shotFactory()
         
         self.out = cv2.VideoWriter(self.outputFile, self.format, self.SC.bitrate, (self.SC.width, self.SC.height))
+
+
+    def run(self):
+        self.WriteProcess = Thread(target=self.write)
+        self.WriteProcess.start()
 
     def write(self):
         self.ev.wait(1)
@@ -57,7 +56,7 @@ class VideoWriter:
                     buffer.append({"key" : keys[0], "time" : perf_counter()})
                 #mouse
                 else:
-                    img = Image.open("Images/Mouse/" + str(keys[0]) + ".png")
+                    img = Image.open("Images\\Mouse\\" + str(keys[0]) + ".png")
                     queue[0].paste(img, (x_mouse, y_mouse), img)
                 keys.pop(0)
             else:
@@ -68,14 +67,21 @@ class VideoWriter:
                 else:
                     x, y = (25 + ImgSize), int(0.75 * self.SC.height)
                     try:
-                        img = Image.open("Images/Keyboard/" + str(self.keyList[i["key"]]) + ".png")
+                        img = Image.open("Images\\Keyboard\\" + str(self.keyList[i["key"]]) + ".png")
                     except FileNotFoundError:
-                        img = Image.open("Images/Keyboard/Template.png")
+                        img = Image.open("Images\\Keyboard\\Template.png")
                         draw = ImageDraw.Draw(img)
+<<<<<<< HEAD
                         font = ImageFont.truetype("Images/Keyboard/Times_New_Roman.ttf", 20)
                         draw.text((50 - len(str(i["key"]))*4, 45), str(i["key"]),(0, 0, 0),font=font)
                         img.save('Images/Keyboard/' + (str(i["key"])) + ".png")
                         self.keyList[i["key"]] = "Images/Keyboard/" + str(i["key"]) + ".png"
+=======
+                        font = ImageFont.truetype("Images\\Keyboard\\Times_New_Roman.ttf", 30)
+                        draw.text((60 - len(str(i["key"])) * 5, 55), str(i["key"]),(0, 0, 0),font=font)
+                        img.save('Images\\Keyboard\\' + (str(i["key"])) + ".png")
+                        self.keyList[i["key"]] = "Images\\Keyboard\\" + str(i["key"]) + ".png"
+>>>>>>> dbdc251e51008209bfd5d88ed0a4ac560ee77956
                         img = Image.open(self.keyList[i["key"]])
                     ImgSize += 125
                     queue[0].paste(img, (x, y), img)
@@ -84,8 +90,7 @@ class VideoWriter:
         endTime = perf_counter() * 100
         print("Work Time : ", endTime - start_time, "sec * 10^-2")
         print(self.SC.bitrate)
-        self.SC.stopFactory(self.SC.shots)
-        #self.redirect.kill()
+        self.SC.stopFactory()
         self.save()
 
     def stop(self):

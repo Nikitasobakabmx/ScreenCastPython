@@ -17,8 +17,8 @@ class Redirector:
         self.listener_k.start()
 
     def kill(self):
-        # self.listener_m.join(1)
-        # self.listener_k.join(1)
+        self.listener_m.join(1)
+        self.listener_k.join(1)
         pass
         #how to terminate thread?
 
