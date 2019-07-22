@@ -5,10 +5,12 @@ from time import perf_counter
 from ScreenCatcher import ScreenCatcher
 from Redirector import Redirector
 from copy import deepcopy
+from time import perf_counter
 try:
-    import Image
+    import Image, ImageDraw, ImageFont
 except ImportError:
-    from PIL import Image
+    from PIL import Image, ImageDraw, ImageFont
+from PIL import ImageDraw, ImageFont
 
 class VideoWriter:
     
@@ -37,43 +39,50 @@ class VideoWriter:
         self.ev.wait(1)
         queue = self.SC.q.get()
         start_time = perf_counter() * 100
+        buffer = []
         while perf_counter() * 100 - start_time < 1000:  # expression
             startTime = perf_counter() * 100
             self.ev.wait(1)
             self.ev.clear()
             queue = self.SC.q.get()
             queue[0] = Image.frombytes("RGB", queue[0].size, queue[0].bgra, "raw", "BGRX")
-            x, y = queue[1]
+            x_mouse, y_mouse = queue[1]
             ImgSize = 0
             keys = queue[2]
             while keys != []:
-                x, y = queue[1]
                 #keyboard
-                if not keys[0].find("_m"):
-                    queue[0].paste(self.mouse, (x, y), self.mouse)
-                    x, y = 25 + ImgSize, 900
-                    if self.keyList[keys[0]] != "None":
-                        img = Image.open("Images/Keyboard/{}.png".format(self.keyList[keys[0]]))
-                    else:
-                        img = Image.open("Images/Keyboard/Template.png")
-                        draw = ImageDraw.Draw(img)
-                        font = ImageFont.truetype("Images/Keyboard/Times_New_Roman.ttf", 30)
-                        draw.text((60, 55), str(keys[0]),(0, 0, 0),font=font)
-                        img.save('Images/Keyboard/{}.png'.format(str(keys[0]))
-                        self.keyList[keys[0]] = "Images/Keyboard/" + str(keys[0]) + ".png"
-                    ImgSize += 160
-                    queue[0].paste(img, (x, y), img)
+                if keys[0][0] != 'B':
+                    queue[0].paste(self.mouse, (x_mouse, y_mouse), self.mouse)
+                    buffer.append({"key" : keys[0], "time" : perf_counter()})
                 #mouse
                 else:
                     img = Image.open("Images/Mouse/{}.png".format(keys[0]))
-                    queue[0].paste(img, (x, y), img)
-                keys.pop([0])
+                    queue[0].paste(img, (x_mouse, y_mouse), img)
+                keys.pop(0)
             else:
-            queue[0].paste(self.mouse, (x, y), self.mouse)
+                queue[0].paste(self.mouse, (x_mouse, y_mouse), self.mouse)
+            for i in buffer:
+                if perf_counter() - i["time"] > 1:
+                    buffer.remove(i)
+                else:
+                    x, y = (25 + ImgSize), int(0.75 * self.SC.height)
+                    try:
+                        img = Image.open("Images/Keyboard/{}.png".format(self.keyList[i["key"]]))
+                    except FileNotFoundError:
+                        img = Image.open("Images/Keyboard/Template.png")
+                        draw = ImageDraw.Draw(img)
+                        font = ImageFont.truetype("Images/Keyboard/Times_New_Roman.ttf", 30)
+                        draw.text((60, 55), str(i["key"]),(0, 0, 0),font=font)
+                        img.save('Images/Keyboard/{}.png'.format(str(i["key"])))
+                        self.keyList[i["key"]] = "Images/Keyboard/" + str(i["key"]) + ".png"
+                        img = Image.open("{}".format(self.keyList[i["key"]]))
+                    ImgSize += 160
+                    queue[0].paste(img, (x, y), img)
             queue[0] = cv2.cvtColor(array(queue[0]), cv2.COLOR_RGB2BGR)
             self.out.write(queue[0])
         endTime = perf_counter() * 100
         print("Work Time : ", endTime - start_time, "sec * 10^-2")
+        print(self.SC.bitrate)
         self.SC.stopFactory(self.SC.shots)
         #self.redirect.kill()
         self.save()

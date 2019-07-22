@@ -33,10 +33,10 @@ class Redirector:
 
     def on_scroll(self, x, y, dx, dy):
         self.position = (x, y)
-        if dy > 0 and 'MoveUp' not in self.events:
-            self.events.append('MoveUp')
-        elif dy <= 0 and 'MoveUp' not in self.events:
-            self.events.append('MoveUp')
+        if dy > 0 and 'Button.MoveUp' not in self.events:
+            self.events.append('Button.MoveUp')
+        elif dy <= 0 and 'Button.MoveDown' not in self.events:
+            self.events.append('Button.MoveDown')
         #self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "time": time()})
 
     def on_press(self, key):

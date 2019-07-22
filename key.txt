@@ -22,8 +22,8 @@ Button.button9 None
 Button.left None
 Button.middle None
 Button.right None
-MoveUp None
-MoveDown None
+Button.MoveUp None
+Button.MoveDown None
 None None
 [ None
 \ None
