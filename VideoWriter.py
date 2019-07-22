@@ -72,12 +72,12 @@ class VideoWriter:
                     except FileNotFoundError:
                         img = Image.open("Images/Keyboard/Template.png")
                         draw = ImageDraw.Draw(img)
-                        font = ImageFont.truetype("Images/Keyboard/Times_New_Roman.ttf", 30)
-                        draw.text((60, 55), str(i["key"]),(0, 0, 0),font=font)
+                        font = ImageFont.truetype("Images/Keyboard/Times_New_Roman.ttf", 20)
+                        draw.text((50 - len(str(i["key"]))*4, 45), str(i["key"]),(0, 0, 0),font=font)
                         img.save('Images/Keyboard/' + (str(i["key"])) + ".png")
                         self.keyList[i["key"]] = "Images/Keyboard/" + str(i["key"]) + ".png"
                         img = Image.open(self.keyList[i["key"]])
-                    ImgSize += 160
+                    ImgSize += 125
                     queue[0].paste(img, (x, y), img)
             queue[0] = cv2.cvtColor(array(queue[0]), cv2.COLOR_RGB2BGR)
             self.out.write(queue[0])
