@@ -4,8 +4,8 @@ from threading import Thread
 #{"but": but, "pos":(x, y), "press": bool,"keyBoard": key , "time":time}
 class Redirector:
     def __init__(self):
-        self.event = Queue()
-        self.events = []
+        self.events = Queue()
+        #self.events = []
         self.position = (0,0)
     def start(self):
         self.listener_m = mouse.Listener(on_click=self.on_click,
@@ -27,25 +27,25 @@ class Redirector:
         self.position = (x, y)
 
     def on_click(self, x, y, button, pressed):
-        if str(button) not in self.events:            
-            self.events.append(str(button))
+        #if str(button) not in self.events:            
+        self.events.put(str(button))
         self.position = (x, y)
 
     def on_scroll(self, x, y, dx, dy):
         self.position = (x, y)
-        if dy > 0 and 'MoveUp' not in self.events:
-            self.events.append('MoveUp')
-        elif dy <= 0 and 'MoveUp' not in self.events:
-            self.events.append('MoveUp')
+        if dy > 0:
+            self.events.put('MoveUp')
+        elif dy <= 0:
+            self.events.put('MoveUp')
         #self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "time": time()})
 
     def on_press(self, key):
         try:
-            if str(key.char) not in self.events:
-                self.events.append(str(key.char))
+            #if str(key.char) not in self.events:
+            self.events.put("KB" + str(key.char))
         except AttributeError:
-            if str(key.name) not in self.events:
-                self.events.append(str(key.name))
+            #if str(key.name) not in self.events:
+            self.events.put("KB" + str(key.name))
         #self.event.put({"but": key.name, "time": time()})
 
     def on_release(self, key):
@@ -67,8 +67,28 @@ if __name__ == "__main__":
     f = open('Keys.txt', 'w')
     try:
         for _ in range(1000000):
-            f.write(str(mrd.events) + "\n")
-            print(str(mrd.events) + "\n")
+            f.write(str(mrd.events.get()) + " None\n")
+            print(str(mrd.events.get()) + " None")
     except KeyboardInterrupt:
         del mrd
     f.close()
+
+
+# if __name__ == "__main__":
+#     f = open('Keys.txt', 'r')
+#     lst = [lines for lines in f]
+#     tmp = []
+#     for line in lst:
+#         line = line.split()
+#         tmp.append(line[0])
+#     relise = []
+#     for i in tmp:
+#         if i not in relise:
+#             relise.append(i)
+#             print(i)
+#     relise.sort()
+#     f.close()
+#     f = open("keysReb.txt", "w")
+#     for i in relise:
+#         f.write(i + " None\n")
+#     f.close()
