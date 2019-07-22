@@ -17,7 +17,7 @@ class ScreenCatcher:
             self.monitor = sct.monitors[1]
             self.width = self.monitor["width"]
             self.height = self.monitor["height"]
-            self.shots = 10
+            self.shots = 1000
             self.expression = True
 
             #count bitrate
@@ -25,18 +25,15 @@ class ScreenCatcher:
             self.q.put([sct.grab(self.monitor),self.redirect.position, self.redirect.events])
             self.redirect.events = []
             self.time = time.perf_counter_ns() - startTime
-            self.bitrate = int(0.3*(10**9/self.time))
+            self.bitrate = int(0.9*(10**9/self.time))
             self.time = int((10**9/self.bitrate))
 
-            #dying there
-            self.shotFactory(self.shots)
-
-    def shotFactory(self, shots):
+    def shotFactory(self):
         self.eventList = []
-        for _ in range(shots):
+        for _ in range(self.shots):
             self.eventList.append(Event())
         self.threadList = []
-        for i in range(shots):
+        for i in range(self.shots):
             self.threadList.append(Thread(target = self.shot_once,
                                     args = (self.eventList[i-1],
                                     self.eventList[i],
@@ -47,10 +44,11 @@ class ScreenCatcher:
             thread.start()
 
 
-    def stopFactory(self, shots):
+    def stopFactory(self):
         # for i in self.threadList:
         #     i.join(1)
         self.expression = False
+        self.redirect.kill()
 
     def shot_once(self, previousEvent, nextEvent, queueEvent, count):
         next_time = time.perf_counter_ns()
