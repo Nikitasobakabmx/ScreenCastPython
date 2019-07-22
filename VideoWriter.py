@@ -23,8 +23,9 @@ class VideoWriter:
         f = open("key.txt", "r")
         for line in f:
             ln = line.split(" ")
-            self.keyList[ln[0]] = ln[1] 
+            self.keyList[ln[0]] = ln[1][:-1] 
         f.close()
+        self.expression = True
 
         self.ev = Event()
         
@@ -40,7 +41,7 @@ class VideoWriter:
         queue = self.SC.q.get()
         start_time = perf_counter() * 100
         buffer = []
-        while perf_counter() * 100 - start_time < 1000:  # expression
+        while self.expression:  # expression
             startTime = perf_counter() * 100
             self.ev.wait(1)
             self.ev.clear()
@@ -56,7 +57,7 @@ class VideoWriter:
                     buffer.append({"key" : keys[0], "time" : perf_counter()})
                 #mouse
                 else:
-                    img = Image.open("Images/Mouse/{}.png".format(keys[0]))
+                    img = Image.open("Images/Mouse/" + str(keys[0]) + ".png")
                     queue[0].paste(img, (x_mouse, y_mouse), img)
                 keys.pop(0)
             else:
@@ -67,15 +68,15 @@ class VideoWriter:
                 else:
                     x, y = (25 + ImgSize), int(0.75 * self.SC.height)
                     try:
-                        img = Image.open("Images/Keyboard/{}.png".format(self.keyList[i["key"]]))
+                        img = Image.open("Images/Keyboard/" + str(self.keyList[i["key"]]) + ".png")
                     except FileNotFoundError:
                         img = Image.open("Images/Keyboard/Template.png")
                         draw = ImageDraw.Draw(img)
                         font = ImageFont.truetype("Images/Keyboard/Times_New_Roman.ttf", 30)
                         draw.text((60, 55), str(i["key"]),(0, 0, 0),font=font)
-                        img.save('Images/Keyboard/{}.png'.format(str(i["key"])))
+                        img.save('Images/Keyboard/' + (str(i["key"])) + ".png")
                         self.keyList[i["key"]] = "Images/Keyboard/" + str(i["key"]) + ".png"
-                        img = Image.open("{}".format(self.keyList[i["key"]]))
+                        img = Image.open(self.keyList[i["key"]])
                     ImgSize += 160
                     queue[0].paste(img, (x, y), img)
             queue[0] = cv2.cvtColor(array(queue[0]), cv2.COLOR_RGB2BGR)
@@ -87,11 +88,12 @@ class VideoWriter:
         #self.redirect.kill()
         self.save()
 
-    def stop(self, expession):
-        self.SC.expession = expession
+    def stop(self):
+        self.expression = False
+        self.WriteProcess.join()
         f = open("key.txt", "w")
-        for i in keyList.items():
-            f.write(str(i[0]) + " " + str(i[1]))
+        for i in self.keyList.items():
+            f.write(str(i[0]) + " " + str(i[1]) + "\n")
         f.close()
 
     def save(self):
