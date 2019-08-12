@@ -17,7 +17,7 @@ class ScreenCatcher:
             self.monitor = sct.monitors[1]
             self.width = self.monitor["width"]
             self.height = self.monitor["height"]
-            self.shots = 1000
+            self.shots = 2
             self.expression = True
 
             #count bitrate
