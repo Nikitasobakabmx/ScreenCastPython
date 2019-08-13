@@ -1,12 +1,13 @@
 from pynput import mouse, keyboard
-from queue import Queue
 from threading import Thread
-#{"but": but, "pos":(x, y), "press": bool,"keyBoard": key , "time":time}
+#pattern
+#{"but":char, "press" : bool}
 class Redirector:
     def __init__(self):
-        self.event = Queue()
         self.events = []
         self.position = (0,0)
+        self.scroll_check = False #like a press in on_click # need for unpress scroll buttom
+
     def start(self):
         self.listener_m = mouse.Listener(on_click=self.on_click,
                                        on_move=self.on_move,
@@ -18,7 +19,9 @@ class Redirector:
 
     def kill(self):
         self.listener_m.join(1)
+        self.listener_m.stop()
         self.listener_k.join(1)
+        self.listener_k.stop()
         pass
         #how to terminate thread?
 
@@ -27,37 +30,39 @@ class Redirector:
         self.position = (x, y)
 
     def on_click(self, x, y, button, pressed):
-        if str(button) not in self.events:            
-            self.events.append(str(button))
+        if {"but" : str(button), "press" : pressed} not in self.events:            
+            self.events.append({"but" : str(button), "press" : pressed})
         self.position = (x, y)
 
     def on_scroll(self, x, y, dx, dy):
         self.position = (x, y)
-        if dy > 0 and 'Button.MoveUp' not in self.events:
-            self.events.append('Button.MoveUp')
-        elif dy <= 0 and 'Button.MoveDown' not in self.events:
-            self.events.append('Button.MoveDown')
-        #self.event.put({"but": "MoveUp" if dy > 0 else "MoveDown", "time": time()})
+        if dy > 0 and {"but" :'Button.MoveDown', "press" : self.scroll_check} not in self.events:
+            self.scroll_check = True - self.scroll_check
+            self.events.append({"but" :'Button.MoveUp', "press" : self.scroll_check})
+        elif dy <= 0 and {"but" :'Button.MoveDown', "press" : self.scroll_check} not in self.events:
+            self.scroll_check = True - self.scroll_check
+            self.events.append({"but" :'Button.MoveDown', "press" : self.scroll_check})
+
 
     def on_press(self, key):
         try:
             if str(key.char) not in self.events:
-                self.events.append(str(key.char))
+                self.events.append({"but" : str(key.char), "press" : True})
         except AttributeError:
             if str(key.name) not in self.events:
-                self.events.append(str(key.name))
-        #self.event.put({"but": key.name, "time": time()})
+                self.events.append({"but" : str(key.name), "press" : True})
 
     def on_release(self, key):
-        pass
-        # try:
-        #     self.events.remove(str(key.char))
-        # except AttributeError:
-        #     self.events.remove(str(key.name))
+        try:
+            if str(key.char) not in self.events:
+                self.events.append({"but" : str(key.char), "press" : False})
+        except AttributeError:
+            if str(key.name) not in self.events:
+                self.events.append({"but" : str(key.name), "press" : False})
         
     def __del__(self):
         pass
-        #self.kill()
+        self.kill()
         #it is demon?
 
 #test
@@ -66,9 +71,10 @@ if __name__ == "__main__":
     mrd.start()
     f = open('Keys.txt', 'w')
     try:
-        for _ in range(1000000):
-            f.write(str(mrd.events) + "\n")
-            print(str(mrd.events) + "\n")
+        for i in range(1000000):
+            f.write(str(mrd.event.get()) + "\n")
+            print(str(mrd.event.get()) + "\n")
+            
     except KeyboardInterrupt:
         del mrd
     f.close()

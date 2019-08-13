@@ -37,6 +37,7 @@ class VideoWriter:
         
         self.cursore_path = "Images\\Mouse\\mouse.png"
         self.cursor = Image.open(self.cursore_path)
+        self.cursor = array(self.cursor)
         self.mouse_back_path = "Images\\Mouse\\Button.Empty.png"
         self.mouse_state = {"Button.left" : False,
                             "Button.right" : False, 
@@ -61,11 +62,11 @@ class VideoWriter:
             self.ev.wait(1)
             self.ev.clear()
             queue = self.SC.q.get()
-            queue[0] = Image.frombytes("RGB", queue[0].size, queue[0].bgra, "raw", "BGRX")
+            queue[0] = array(queue[0])
             queue[0] = self._write_interface(queue[0], queue[2], queue[1])
-            queue[0] = queue[0].resize((int(queue[0].size[0] * 0.5),
-                                    int(queue[0].size[1] * 0.5)),
-                                    Image.ANTIALIAS)
+            # queue[0] = queue[0].resize((int(queue[0].size[0] * 0.5),
+            #                         int(queue[0].size[1] * 0.5)),
+            #                         Image.ANTIALIAS)
             queue[0] = cv2.cvtColor(array(queue[0]), cv2.COLOR_RGB2BGR)
             self.out.write(queue[0])
         endTime = perf_counter() * 100
@@ -74,10 +75,16 @@ class VideoWriter:
         self.SC.stopFactory()
         self.save()
 
-    def _write_interface(self, img, keys, position):
+
+
+
+
+    def _write_interface(self, img, keys, position): #image now is nympy array
         ImgSize = 0
         #paste cursor
-        img.paste(self.mouse, (position[0], position[1]), self.mouse)
+        width = len(img)
+        higth = len(img[0])
+        for i in range(len())
         x, y = 0, 0
         for key in keys[::-1]:
             # keyboard # if name start with 'B' this is Button... # on keyboards only keys

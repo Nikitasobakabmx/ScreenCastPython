@@ -17,7 +17,7 @@ class ScreenCatcher:
             self.monitor = sct.monitors[1]
             self.width = self.monitor["width"]
             self.height = self.monitor["height"]
-            self.shots = 1000
+            self.shots = 2
             self.expression = True
 
             #count bitrate
@@ -25,7 +25,7 @@ class ScreenCatcher:
             self.q.put([sct.grab(self.monitor),self.redirect.position, self.redirect.events])
             self.redirect.events = []
             self.time = time.perf_counter_ns() - startTime
-            self.bitrate = int(0.9*(10**9/self.time))
+            self.bitrate = int(0.7*(10**9/self.time))
             self.time = int((10**9/self.bitrate))
 
     def shotFactory(self):
@@ -56,20 +56,19 @@ class ScreenCatcher:
             with mss.mss() as sct:
                 previousEvent.wait()
 
-                self.mutex.acquire()
-                next_time += self.time
-                previousEvent.clear()
-                start_time = time.perf_counter_ns()
-                            #screenShot                     #mouse position         #list of key
-                self.q.put([sct.grab(self.monitor), self.redirect.position, self.redirect.events])
-                self.redirect.events = []
-                self.mutex.release()
+                with self.mutex:
+                    next_time += self.time
+                    previousEvent.clear()
+                    start_time = time.perf_counter_ns()
+                                #screenShot                     #mouse position         #list of key
+                    self.q.put([sct.grab(self.monitor), self.redirect.position, self.redirect.events])
+                    self.redirect.events = []
+                    end_time = (time.perf_counter_ns() - start_time) / 10**9
                 
-                end_time = (time.perf_counter_ns() - start_time) / 10**9
                 time.sleep((self.time/10**9 - end_time - ((next_time/10**9) % 0.015)) if (self.time/10**9 - end_time - ((next_time/10**9) % 0.015)) > 0 else 0 )
                 while time.perf_counter_ns() < next_time:
                      pass
-                if queueEvent != None: 
+                if queueEvent: 
                     queueEvent.set()    
                 nextEvent.set()
 #test

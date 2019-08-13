@@ -31,11 +31,11 @@ None None
 ` None
 a Images\Keyboard\a.png
 alt None
-alt_r None
+alt_r Images\Keyboard\alt_r.png
 b None
-backspace Images/Keyboard/backspace.png
+backspace Images\Keyboard\backspace.png
 c None
-caps_lock None
+caps_lock Images\Keyboard\caps_lock.png
 cmd None
 ctrl None
 ctrl_r None
@@ -66,8 +66,8 @@ i Images\Keyboard\i.png
 insert None
 j Images\Keyboard\j.png
 k Images\Keyboard\k.png
-l None
-left None
+l Images\Keyboard\l.png
+left Images\Keyboard\left.png
 m None
 menu None
 n None
@@ -83,11 +83,11 @@ r None
 right None
 s Images\Keyboard\s.png
 scroll_lock None
-shift Images/Keyboard/shift.png
+shift Images\Keyboard\shift.png
 shift_r None
-space Images/Keyboard/space.png
-t Images/Keyboard/t.png
-tab None
+space Images\Keyboard\space.png
+t Images\Keyboard\t.png
+tab Images\Keyboard\tab.png
 u Images\Keyboard\u.png
 up None
 v None
@@ -95,3 +95,5 @@ w None
 x None
 y None
 z None
+alt_l Images\Keyboard\alt_l.png
+ctrl_l Images\Keyboard\ctrl_l.png
